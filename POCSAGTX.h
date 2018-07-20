@@ -1,6 +1,6 @@
 /*
- *   Copyright (C) 2015 by Jonathan Naylor G4KLX
- *   Copyright (C) 2017,2018 by Andy Uribe CA6JAU
+ *   Copyright (C) 2015,2016,2017,2018 by Jonathan Naylor G4KLX
+ *   Copyright (C) 2018 by Andy Uribe CA6JAU
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -17,38 +17,32 @@
  *   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-#if !defined(DMRIDLERX_H)
-#define  DMRIDLERX_H
+#if !defined(POCSAGTX_H)
+#define  POCSAGTX_H
 
-#include "Config.h"
-
-#if defined(DUPLEX)
-
-#include "DMRDefines.h"
-
-const uint16_t DMR_IDLE_LENGTH_BITS = 320U;
-
-class CDMRIdleRX {
+class CPOCSAGTX {
 public:
-  CDMRIdleRX();
+  CPOCSAGTX();
 
-  void databit(bool bit);
+  uint8_t writeData(const uint8_t* data, uint8_t length);
 
-  void setColorCode(uint8_t colorCode);
+  void setTXDelay(uint8_t delay);
 
-  void reset();
+  uint8_t getSpace() const;
+
+  void process();
+
+  bool busy();
 
 private:
-  uint64_t m_patternBuffer;
-  uint8_t  m_buffer[DMR_IDLE_LENGTH_BITS / 8U];
-  uint16_t m_dataPtr;
-  uint16_t m_endPtr;
-  uint8_t  m_colorCode;
+  CSerialRB        m_buffer;
+  uint8_t          m_poBuffer[200U];
+  uint16_t         m_poLen;
+  uint16_t         m_poPtr;
+  uint16_t         m_txDelay;
+  bool             m_delay;
 
-  void bitsToBytes(uint16_t start, uint8_t count, uint8_t* buffer);
+  void writeByte(uint8_t c);
 };
 
 #endif
-
-#endif
-

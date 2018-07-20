@@ -36,6 +36,11 @@ const uint8_t CONTROL_NONE  = 0x00U;
 const uint8_t CONTROL_VOICE = 0x20U;
 const uint8_t CONTROL_DATA  = 0x40U;
 
+const uint8_t BIT_MASK_TABLE[] = {0x80U, 0x40U, 0x20U, 0x10U, 0x08U, 0x04U, 0x02U, 0x01U};
+
+#define WRITE_BIT1(p,i,b) p[(i)>>3] = (b) ? (p[(i)>>3] | BIT_MASK_TABLE[(i)&7]) : (p[(i)>>3] & ~BIT_MASK_TABLE[(i)&7])
+#define READ_BIT1(p,i)    ((p[(i)>>3] & BIT_MASK_TABLE[(i)&7]) >> (7 - ((i)&7)))
+
 CDMRSlotRX::CDMRSlotRX() :
 m_slot(false),
 m_patternBuffer(0x00U),
@@ -97,15 +102,14 @@ void CDMRSlotRX::reset()
 
 bool CDMRSlotRX::databit(bool bit)
 {
-  uint16_t    min;
-  uint16_t    max;
+  uint16_t min, max;
 
   m_delayPtr++;
   if (m_delayPtr < m_delay)
     return (m_state1 != DMRRXS_NONE) || (m_state2 != DMRRXS_NONE);
 
-  m_buffer[m_dataPtr] = bit;
-  
+  WRITE_BIT1(m_buffer, m_dataPtr, bit);
+
   m_patternBuffer <<= 1;
   if (bit)
     m_patternBuffer |= 0x01U;
@@ -362,58 +366,53 @@ void CDMRSlotRX::correlateSync()
   uint8_t  control;
 
   if (countBits64((m_patternBuffer & DMR_SYNC_BITS_MASK) ^ DMR_MS_DATA_SYNC_BITS) <= MAX_SYNC_BYTES_ERRS) {
+    control = CONTROL_DATA;
+    syncPtr = m_dataPtr;
 
-  control = CONTROL_DATA;
-  syncPtr = m_dataPtr;
+    startPtr = m_dataPtr + DMR_BUFFER_LENGTH_BITS - DMR_SLOT_TYPE_LENGTH_BITS / 2U - DMR_INFO_LENGTH_BITS / 2U - DMR_SYNC_LENGTH_BITS + 1;
+    if (startPtr >= DMR_BUFFER_LENGTH_BITS)
+      startPtr -= DMR_BUFFER_LENGTH_BITS;
 
-  startPtr = m_dataPtr + DMR_BUFFER_LENGTH_BITS - DMR_SLOT_TYPE_LENGTH_BITS / 2U - DMR_INFO_LENGTH_BITS / 2U - DMR_SYNC_LENGTH_BITS + 1;
-  if (startPtr >= DMR_BUFFER_LENGTH_BITS)
-    startPtr -= DMR_BUFFER_LENGTH_BITS;
+    endPtr = m_dataPtr + DMR_SLOT_TYPE_LENGTH_BITS / 2U + DMR_INFO_LENGTH_BITS / 2U;
+    if (endPtr >= DMR_BUFFER_LENGTH_BITS)
+      endPtr -= DMR_BUFFER_LENGTH_BITS;
 
-  endPtr   = m_dataPtr + DMR_SLOT_TYPE_LENGTH_BITS / 2U + DMR_INFO_LENGTH_BITS / 2U;
-  if (endPtr >= DMR_BUFFER_LENGTH_BITS)
-    endPtr -= DMR_BUFFER_LENGTH_BITS;
-
-  if(m_slot) {
-    m_syncPtr2 = syncPtr;
-    m_startPtr2 = startPtr;
-    m_endPtr2 = endPtr;
-    m_control2 = control;
-  } else {
-    m_syncPtr1 = syncPtr;
-    m_startPtr1 = startPtr;
-    m_endPtr1 = endPtr;
-    m_control1 = control;
-  }
-
-  //DEBUG5("SYNC corr MS Data found slot/pos/start/end:", m_slot ? 2U : 1U, m_dataPtr, startPtr, endPtr);
-  
+    if(m_slot) {
+      m_syncPtr2 = syncPtr;
+      m_startPtr2 = startPtr;
+      m_endPtr2 = endPtr;
+      m_control2 = control;
+    } else {
+      m_syncPtr1 = syncPtr;
+      m_startPtr1 = startPtr;
+      m_endPtr1 = endPtr;
+      m_control1 = control;
+    }
+    //DEBUG5("SYNC corr MS Data found slot/pos/start/end:", m_slot ? 2U : 1U, m_dataPtr, startPtr, endPtr);
   } else if (countBits64((m_patternBuffer & DMR_SYNC_BITS_MASK) ^ DMR_MS_VOICE_SYNC_BITS) <= MAX_SYNC_BYTES_ERRS) {
+    control  = CONTROL_VOICE;
+    syncPtr  = m_dataPtr;
 
-  control  = CONTROL_VOICE;
-  syncPtr  = m_dataPtr;
+    startPtr = m_dataPtr + DMR_BUFFER_LENGTH_BITS - DMR_SLOT_TYPE_LENGTH_BITS / 2U - DMR_INFO_LENGTH_BITS / 2U - DMR_SYNC_LENGTH_BITS + 1;
+    if (startPtr >= DMR_BUFFER_LENGTH_BITS)
+      startPtr -= DMR_BUFFER_LENGTH_BITS;
 
-  startPtr = m_dataPtr + DMR_BUFFER_LENGTH_BITS - DMR_SLOT_TYPE_LENGTH_BITS / 2U - DMR_INFO_LENGTH_BITS / 2U - DMR_SYNC_LENGTH_BITS + 1;
-  if (startPtr >= DMR_BUFFER_LENGTH_BITS)
-    startPtr -= DMR_BUFFER_LENGTH_BITS;
-    
-  endPtr   = m_dataPtr + DMR_SLOT_TYPE_LENGTH_BITS / 2U + DMR_INFO_LENGTH_BITS / 2U;
-  if (endPtr >= DMR_BUFFER_LENGTH_BITS)
-    endPtr -= DMR_BUFFER_LENGTH_BITS;
+    endPtr   = m_dataPtr + DMR_SLOT_TYPE_LENGTH_BITS / 2U + DMR_INFO_LENGTH_BITS / 2U;
+    if (endPtr >= DMR_BUFFER_LENGTH_BITS)
+      endPtr -= DMR_BUFFER_LENGTH_BITS;
 
-  if(m_slot) {
-    m_syncPtr2 = syncPtr;
-    m_startPtr2 = startPtr;
-    m_endPtr2 = endPtr;
-    m_control2 = control;
-  } else {
-    m_syncPtr1 = syncPtr;
-    m_startPtr1 = startPtr;
-    m_endPtr1 = endPtr;
-    m_control1 = control;
-  }
-
-  //DEBUG5("SYNC corr MS Voice found slot/pos/start/end: ", m_slot ? 2U : 1U, m_dataPtr, startPtr, endPtr);
+    if(m_slot) {
+      m_syncPtr2 = syncPtr;
+      m_startPtr2 = startPtr;
+      m_endPtr2 = endPtr;
+      m_control2 = control;
+    } else {
+      m_syncPtr1 = syncPtr;
+      m_startPtr1 = startPtr;
+      m_endPtr1 = endPtr;
+      m_control1 = control;
+    }
+    //DEBUG5("SYNC corr MS Voice found slot/pos/start/end: ", m_slot ? 2U : 1U, m_dataPtr, startPtr, endPtr);
   }
 }
 
@@ -421,28 +420,36 @@ void CDMRSlotRX::bitsToBytes(uint16_t start, uint8_t count, uint8_t* buffer)
 {
   for (uint8_t i = 0U; i < count; i++) {
     buffer[i]  = 0U;
-    buffer[i] |= ((m_buffer[start++] & 0x01) << 7);
+    buffer[i] |= READ_BIT1(m_buffer, start) << 7;
+    start++;
     if (start >= DMR_BUFFER_LENGTH_BITS)
       start -= DMR_BUFFER_LENGTH_BITS;
-    buffer[i] |= ((m_buffer[start++] & 0x01) << 6);
+    buffer[i] |= READ_BIT1(m_buffer, start) << 6;
+    start++;
     if (start >= DMR_BUFFER_LENGTH_BITS)
       start -= DMR_BUFFER_LENGTH_BITS;
-    buffer[i] |= ((m_buffer[start++] & 0x01) << 5);
+    buffer[i] |= READ_BIT1(m_buffer, start) << 5;
+    start++;
     if (start >= DMR_BUFFER_LENGTH_BITS)
       start -= DMR_BUFFER_LENGTH_BITS;
-    buffer[i] |= ((m_buffer[start++] & 0x01) << 4);
+    buffer[i] |= READ_BIT1(m_buffer, start) << 4;
+    start++;
     if (start >= DMR_BUFFER_LENGTH_BITS)
       start -= DMR_BUFFER_LENGTH_BITS;
-    buffer[i] |= ((m_buffer[start++] & 0x01) << 3);
+    buffer[i] |= READ_BIT1(m_buffer, start) << 3;
+    start++;
     if (start >= DMR_BUFFER_LENGTH_BITS)
       start -= DMR_BUFFER_LENGTH_BITS;
-    buffer[i] |= ((m_buffer[start++] & 0x01) << 2);
+    buffer[i] |= READ_BIT1(m_buffer, start) << 2;
+    start++;
     if (start >= DMR_BUFFER_LENGTH_BITS)
       start -= DMR_BUFFER_LENGTH_BITS;
-    buffer[i] |= ((m_buffer[start++] & 0x01) << 1);
+    buffer[i] |= READ_BIT1(m_buffer, start) << 1;
+    start++;
     if (start >= DMR_BUFFER_LENGTH_BITS)
       start -= DMR_BUFFER_LENGTH_BITS;
-    buffer[i] |= ((m_buffer[start++] & 0x01) << 0);
+    buffer[i] |= READ_BIT1(m_buffer, start) << 0;
+    start++;
     if (start >= DMR_BUFFER_LENGTH_BITS)
       start -= DMR_BUFFER_LENGTH_BITS;
   }

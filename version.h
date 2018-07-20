@@ -23,18 +23,29 @@
 #include "ADF7021.h"
 
 #define VER_MAJOR       "1"
-#define VER_MINOR       "3"
-#define VER_REV         "2"
-#define VERSION_DATE    "20180222"
+#define VER_MINOR       "4"
+#define VER_REV         "5"
+#define VERSION_DATE    "20180718"
 
 #if defined(ZUMSPOT_ADF7021)
 #define BOARD_INFO      "ZUMspot"
 #elif defined(MMDVM_HS_HAT_REV12)
 #define BOARD_INFO      "MMDVM_HS_Hat"
+#elif defined(MMDVM_HS_DUAL_HAT_REV10)
+#define BOARD_INFO      "MMDVM_HS_Dual_Hat"
 #elif defined(NANO_HOTSPOT)
 #define BOARD_INFO      "Nano_hotSPOT"
+#elif defined(NANO_DV_REV10)
+#define BOARD_INFO      "Nano_DV"
 #else
 #define BOARD_INFO      "MMDVM_HS"
+#endif
+
+#if defined(ADF7021_14_7456)
+#define TCXO_FREQ       "14.7456"
+#endif
+#if defined(ADF7021_12_2880)
+#define TCXO_FREQ       "12.2880"
 #endif
 
 #if defined(ENABLE_ADF7021) && defined(ADF7021_N_VER)
@@ -51,7 +62,7 @@
 
 #define FW_VERSION      "v" VER_MAJOR "." VER_MINOR "." VER_REV " " VERSION_DATE
 
-#define DESCRIPTION     BOARD_INFO "-" FW_VERSION " " RF_DUAL RF_CHIP " FW by CA6JAU"
+#define DESCRIPTION     BOARD_INFO "-" FW_VERSION " " TCXO_FREQ "MHz " RF_DUAL RF_CHIP " FW by CA6JAU"
 
 #if defined(MADEBYMAKEFILE)
 #include "GitVersion.h"

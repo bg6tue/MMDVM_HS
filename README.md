@@ -1,16 +1,20 @@
 # Introduction
 
-This is the source code of ZUMspot/MMDVM_HS, personal hotspot (ADF7021 version of the MMDVM firmware), based on Jonathan G4KLX's [MMDVM](https://github.com/g4klx/MMDVM) software. This firmware supports D-Star, DMR, System Fusion, P25 and NXDN digital modes.
+This is the source code of ZUMspot/MMDVM_HS firmware for personal hotspots (ADF7021 version of the MMDVM firmware), based on Jonathan G4KLX's [MMDVM](https://github.com/g4klx/MMDVM) software. This firmware supports D-Star, DMR, System Fusion, P25 and NXDN digital voice modes and POCSAG 1200 pager protocol.
 
 This software is intended to be run on STM32F103 microcontroller. Also, Arduino with 3.3 V I/O (Arduino Due and Zero) and Teensy (3.1, 3.2, 3.5 or 3.6) are supported. You can build this code using Arduino IDE with Roger Clark's [STM32duino](https://github.com/rogerclarkmelbourne/Arduino_STM32/tree/ZUMspot) package, or using command line tools with ARM GCC tools. The preferred method under Windows is using STM32duino, and under Linux or macOS (command line) is using [STM32F10X_Lib](https://github.com/juribeparada/STM32F10X_Lib). 
+
+This software comes with ABSOLUTELY NO WARRANTY, it is provided "AS IS" with the hope to be useful, use at your own risk. This firmware software is intended to be use into personal hotspots hardware, with a few mili-watts of RF power and short ranges (indoor). Because this is an amateur project doing by developers under their free time, and due to ADF7021 limitations, please DO NOT EXPECT high performance or full compliant to any digital voice standard of this firmware or any board based on this firmware.
 
 This software is licenced under the GPL v2 and is intended for amateur and educational use only. Use of this software for commercial purposes is strictly forbidden.
 
 # Features
 
 - Supported modes: D-Star, DMR, Yaesu Fusion, P25 Phase 1 and NXDN
+- Other modes: POCSAG 1200
 - Automatic mode detection (scanning)
-- G4KLX software suite: [MMDVMHost](https://github.com/g4klx/MMDVMHost), [ircDDBGateway](https://github.com/dl5di/OpenDV), [YSFGateway](https://github.com/g4klx/YSFClients), [P25Gateway](https://github.com/g4klx/P25Clients), [DMRGateway](https://github.com/g4klx/DMRGateway) and [MMDVMCal](https://github.com/g4klx/MMDVMCal)
+- G4KLX software suite: [MMDVMHost](https://github.com/g4klx/MMDVMHost), [ircDDBGateway](https://github.com/g4klx/ircDDBGateway), [YSFGateway](https://github.com/g4klx/YSFClients), [P25Gateway](https://github.com/g4klx/P25Clients), [DMRGateway](https://github.com/g4klx/DMRGateway), [NXDNGateway](https://github.com/g4klx/NXDNClients),
+[DAPNETGateway](https://github.com/g4klx/DAPNETGateway) and [MMDVMCal](https://github.com/g4klx/MMDVMCal)
 - Bands: 144, 220, 430 and 900 MHz (VHF requires external inductor)
 - Status LEDs (PTT, COR and digital modes)
 - Serial repeater port for Nextion displays
@@ -35,6 +39,8 @@ Dual ADF7021 for full duplex operation (#define DUPLEX in Config.h) will work on
 
 If you can't decode any 4FSK modulation (DMR, YSF, P25 or NXDN) with your ZUMspot, the common solution is to adjust RX frequency offset (RXOffset) in your MMDVM.ini file. Please try with steps of +-100 Hz until you get low BER. If you don't have test equipment, the procedure is trial and error. In some cases TXOffset adjustment is also required for proper radio decoding. If you have test equipment, please use [MMDVMCal](https://github.com/g4klx/MMDVMCal).
 
+If you have problems updating firmware using USB bootloader (DFU mode) on Orange Pi or any other system different from RPi, you could compile the dfu tool directly. You could get the source code of a dfu tool [here](https://sourceforge.net/projects/dfu-programmer/files/dfu-programmer/0.7.0/).
+
 # Quick start
 
 Please see [BUILD.md](BUILD.md) for more details, and also [MMDVM](https://groups.yahoo.com/neo/groups/mmdvm/info) Yahoo Groups. You also can check at MMDVM_HS/scripts folder for some automatic tasks.
@@ -42,6 +48,18 @@ Please see [BUILD.md](BUILD.md) for more details, and also [MMDVM](https://group
 ## Binary firmware installation
 
 Please check the latest firmware [here](https://github.com/juribeparada/MMDVM_HS/releases).
+
+### Pi-Star binary firmware installation
+
+You could use some pi-star commands under SSH console:
+
+- sudo pistar-zumspotflash rpi: ZUMspot RPi board
+- sudo pistar-zumspotflash rpi_duplex: ZUMSpot duplex board conected to GPIO
+- sudo pistar-zumspotflash usb: ZUMspot USB dongle
+- sudo pistar-zumspotflash libre: ZUMspot Libre Kit or generic MMDVM_HS board with USB
+- sudo pistar-mmdvmhshatflash hs_hat: MMDVM_HS_Hat board conected to GPIO
+- sudo pistar-mmdvmhshatflash hs_dual_hat: HS_DUAL_HAT board conected to GPIO
+- sudo pistar-nanohsflash nano_hs: Nano hotSPOT board
 
 ### Windows
 
@@ -53,12 +71,17 @@ This utility includes firmwares binaries and USB drivers for Windows 7/8/10. If 
 
 Download the script (*.sh) that matches with your ZUMspot/MMDVM_HS board:
 
-- install_fw_rpi.sh: only for ZUMspot RPi board
-- install_fw_hshat.sh: only for MMDVM_HS_Hat board
-- install_fw_nanohs.sh: only for Nano hotSPOT board
-- install_fw_librekit.sh: only for ZUMspot Libre Kit board or generic MMDVM_HS board
-- install_fw_usb.sh: only for ZUMspot USB dongle
-- install_fw_duplex.sh: only for MMDVM_HS with dual ADF7021
+- install_fw_rpi.sh: only for ZUMspot RPi board (KI6ZUM & VE2GZI)
+- install_fw_hshat.sh: only for MMDVM_HS_Hat board (DB9MAT & DF2ET)
+- install_fw_hshat-12mhz.sh: only for MMDVM_HS_Hat board with 12.288 MHz TCXO (DB9MAT & DF2ET)
+- install_fw_nanohs.sh: only for Nano hotSPOT board (BI7JTA)
+- install_fw_nanodv.sh: only for Nano DV board (BG4TGO & BG5HHP)
+- install_fw_hsdualhat.sh: only for MMDVM_HS_Dual_Hat board (DB9MAT & DF2ET & DO7EN)
+- install_fw_librekit.sh: only for ZUMspot Libre Kit board (KI6ZUM & VE2GZI) or generic MMDVM_HS board with USB interface
+- install_fw_usb.sh: only for ZUMspot USB dongle (KI6ZUM & VE2GZI)
+- install_fw_duplex.sh: only for MMDVM_HS with dual ADF7021 (EA7GIB) or generic dual ADF7021 board with USB interface
+- install_fw_gen_gpio.sh: only for generic MMDVM_HS board (EA7GIB) with GPIO serial interface
+- install_fw_duplex_gpio.sh: only for MMDVM_HS with dual ADF7021 (EA7GIB) or generic dual ADF7021 board with GPIO serial interface
 
 For example, download the ZUMspot RPi upgrade script:
 
@@ -104,7 +127,8 @@ Download the sources:
     cd ~
     git clone https://github.com/juribeparada/MMDVM_HS
     cd MMDVM_HS/
-    git clone https://github.com/juribeparada/STM32F10X_Lib
+    git submodule init
+    git submodule update
 
 Build the firmware with USB bootloader support (the default Config.h is OK for Libre Kit):
 
@@ -176,7 +200,8 @@ Download the firmware sources:
     cd ~
     git clone https://github.com/juribeparada/MMDVM_HS
     cd MMDVM_HS/
-    git clone https://github.com/juribeparada/STM32F10X_Lib
+    git submodule init
+    git submodule update
 
 Edit Config.h
 

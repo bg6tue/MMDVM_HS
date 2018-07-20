@@ -50,10 +50,46 @@ make
 mv ~/MMDVM_HS/bin/mmdvm_f1.bin ~/MMDVM_HS/bin/mmdvm_hs_hat_fw.bin
 make clean
 
+# Building MMDVM_HS_Hat (12.288 MHz TCXO)
+cp ~/MMDVM_HS/configs/MMDVM_HS_Hat-12mhz.h ~/MMDVM_HS/Config.h
+make
+mv ~/MMDVM_HS/bin/mmdvm_f1.bin ~/MMDVM_HS/bin/mmdvm_hs_hat_fw-12mhz.bin
+make clean
+
+# Building MMDVM_HS_Dual_Hat
+cp ~/MMDVM_HS/configs/MMDVM_HS_Dual_Hat.h ~/MMDVM_HS/Config.h
+make
+mv ~/MMDVM_HS/bin/mmdvm_f1.bin ~/MMDVM_HS/bin/mmdvm_hs_dual_hat_fw.bin
+make clean
+
+# Building MMDVM_HS_Dual_Hat (12.288 MHz TCXO)
+cp ~/MMDVM_HS/configs/MMDVM_HS_Dual_Hat-12mhz.h ~/MMDVM_HS/Config.h
+make
+mv ~/MMDVM_HS/bin/mmdvm_f1.bin ~/MMDVM_HS/bin/mmdvm_hs_dual_hat_fw-12mhz.bin
+make clean
+
 # Building Nano hotSPOT
 cp ~/MMDVM_HS/configs/Nano_hotSPOT.h ~/MMDVM_HS/Config.h
 make
 mv ~/MMDVM_HS/bin/mmdvm_f1.bin ~/MMDVM_HS/bin/nano_hotspot_fw.bin
+make clean
+
+# Building Nano DV
+cp ~/MMDVM_HS/configs/NanoDV.h ~/MMDVM_HS/Config.h
+make
+mv ~/MMDVM_HS/bin/mmdvm_f1.bin ~/MMDVM_HS/bin/nano_dv_fw.bin
+make clean
+
+# Building Generic Simplex GPIO
+cp ~/MMDVM_HS/configs/generic_gpio.h ~/MMDVM_HS/Config.h
+make
+mv ~/MMDVM_HS/bin/mmdvm_f1.bin ~/MMDVM_HS/bin/generic_gpio_fw.bin
+make clean
+
+# Building Generic Duplex GPIO
+cp ~/MMDVM_HS/configs/generic_duplex_gpio.h ~/MMDVM_HS/Config.h
+make
+mv ~/MMDVM_HS/bin/mmdvm_f1.bin ~/MMDVM_HS/bin/generic_duplex_gpio_fw.bin
 make clean
 
 cp ~/MMDVM_HS/configs/ZUMspot_Libre.h ~/MMDVM_HS/Config.h

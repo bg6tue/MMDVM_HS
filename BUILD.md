@@ -98,7 +98,8 @@ Download the firmware sources:
     cd ~
     git clone https://github.com/juribeparada/MMDVM_HS
     cd MMDVM_HS/
-    git clone https://github.com/juribeparada/STM32F10X_Lib
+    git submodule init
+    git submodule update
 
 (Please do not download any different code inside MMDVM_HS folder)
 
@@ -293,7 +294,8 @@ Download the sources:
     cd ~
     git clone https://github.com/juribeparada/MMDVM_HS
     cd MMDVM_HS/
-    git clone https://github.com/juribeparada/STM32F10X_Lib
+    git submodule init
+    git submodule update
 
 (Please do not download any different code inside MMDVM_HS folder)
 
@@ -429,7 +431,8 @@ Download the sources:
     cd ~
     git clone https://github.com/juribeparada/MMDVM_HS
     cd MMDVM_HS/
-    git clone https://github.com/juribeparada/STM32F10X_Lib
+    git submodule init
+    git submodule update
 
 (Please do not download any different code inside MMDVM_HS folder)
 
@@ -544,7 +547,11 @@ modified RF7021SE and Blue Pill STM32F103).
 
 - #define MMDVM_HS_HAT_REV12: enable this option if you have a MMDVM_HS_Hat board for RPi.
 
+- #define MMDVM_HS_DUAL_HAT_REV10: enable this option if you have a MMDVM_HS_Dual_Hat board for RPi/USB.
+
 - #define NANO_HOTSPOT: enable this option if you have a Nano hotSPOT (BI7JTA).
+
+- #define NANO_DV_REV10: enable this option if you have a Nano DV (BG4TGO & BG5HHP).
 
 - #define ENABLE_ADF7021: add support for ADF7021 (all boards, enabled by default).
 
